@@ -31,6 +31,14 @@ INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
     """
 )
 
+UPDATE_SURREAL_DOC_EMBEDDING_QUERY = 
+    """
+    UPDATE surreal_doc_embedding SET content_vector=fn::embeddings_complete("embedding-001", contents) WHERE content_vector = none;
+    """
+
+
+
+
 TOTAL_ROWS = 25000
 CHUNK_SIZE = 100
 
@@ -316,3 +324,10 @@ def surreal_docs_insert() -> None:
                 )
             )
             pbar.update(1)
+
+            connection.query(
+                query=INSERT_SURREAL_DOC_EMBEDDING_QUERY
+            )
+            pbar.update(1)
+            UPDATE_SURREAL_DOC_EMBEDDING_QUERY
+            
