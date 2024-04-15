@@ -34,6 +34,8 @@ INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
 TOTAL_ROWS = 25000
 CHUNK_SIZE = 100
 
+NS = "surreal_gemini"
+DB = "surreal_gemini"
 
 def extract_id(surrealdb_id: str) -> str:
     """Extract numeric ID from SurrealDB record ID.
@@ -77,8 +79,8 @@ async def lifespan(_: fastapi.FastAPI) -> AsyncGenerator:
     connection = surrealdb.AsyncSurrealDB(url="ws://localhost:8080/rpc")
     await connection.connect()
     await connection.signin(data={"username": "root", "password": "root"})
-    await connection.use_namespace("test")
-    await connection.use_database("test")
+    await connection.use_namespace(NS)
+    await connection.use_database(DB)
     life_span["surrealdb"] = connection
     yield
     life_span.clear()
@@ -285,8 +287,8 @@ def surreal_insert() -> None:
     logger.info("Connecting to SurrealDB")
     connection = surrealdb.SurrealDB("ws://localhost:8080/rpc")
     connection.signin(data={"username": "root", "password": "root"})
-    connection.use_namespace("test")
-    connection.use_database("test")
+    connection.use_namespace(NS)
+    connection.use_database(DB)
 
     logger.info("Inserting rows into SurrealDB")
     with tqdm.tqdm(total=total_chunks, desc="Inserting") as pbar:
