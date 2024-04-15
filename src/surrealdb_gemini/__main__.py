@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup  # For HTML parsing
 import markdown  # For Markdown parsing 
 
 FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING = string.Template(
-    """{url: "$url", contents: s"$contents"}"""
+    """{url: "$url", contents: s"$contents", content_vector: []}"""
 )
 
 INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
