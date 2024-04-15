@@ -27,7 +27,7 @@ FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING = string.Template(
 
 INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
     """
-    INSERT INTO SURREAL_DOC_embedding [\n $records\n];
+    INSERT INTO surreal_doc_embedding [\n $records\n];
     """
 )
 
