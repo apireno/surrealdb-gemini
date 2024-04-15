@@ -15,14 +15,19 @@ import tqdm
 import wget
 from fastapi import templating, responses, staticfiles
 
+import git
+import csv
+import os
+from bs4 import BeautifulSoup  # For HTML parsing
+import markdown  # For Markdown parsing 
 
-FORMATTED_RECORD_FOR_INSERT_WIKI_EMBEDDING = string.Template(
-    """{url: "$url", title: s"$title", text: s"$text", title_vector: $title_vector, content_vector: $content_vector}"""
+FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING = string.Template(
+    """{url: "$url", contents: s"$contents", content_vector: $content_vector}"""
 )
 
-INSERT_WIKI_EMBEDDING_QUERY = string.Template(
+INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
     """
-    INSERT INTO wiki_embedding [\n $records\n];
+    INSERT INTO SURREAL_DOC_embedding [\n $records\n];
     """
 )
 
@@ -202,31 +207,77 @@ def setup_logger(name: str) -> logging.Logger:
     logger.addHandler(ch)
     return logger
 
+def get_file_url(repo_path, file_path,current_directory):
+    return repo_path  + "/" + file_path.replace(current_directory, "");
+    
+def extract_plain_text_from_markdown(file_path):
+    with open(file_path, 'r') as f:
+        text = f.read()
+        html = markdown.markdown(text)  # Convert to HTML first (cleaner extraction)
+        return BeautifulSoup(html, 'html.parser').get_text(strip=True)
 
+def extract_plain_text_from_html(file_path):
+    with open(file_path, 'r') as f:
+        soup = BeautifulSoup(f, 'html.parser')
+        return soup.get_text(strip=True)
+
+
+def extract_file_info(repo_path, repo_dir, csv_filename):
+    #"""Extracts file info (URL, title, author, contents) and writes to CSV."""
+
+    if not os.path.exists(repo_dir):
+        repo = git.Repo.clone_from(repo_path, repo_dir)
+    else:
+        repo = git.Repo(repo_dir)
+        repo.remotes[0].pull()
+
+    
+    
+    current_directory = os.getcwd() + "/" +repo_dir
+     
+    with open(repo_dir+csv_filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["url", "contents"])  # Header row
+
+        for root, _, files in os.walk(repo.working_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                url = get_file_url(repo_path, file_path,current_directory)  # You'll need a function to generate URLs
+                contents = ""
+
+                if file.endswith(".md") or file.endswith(".mdx"):
+                    contents = extract_plain_text_from_markdown(file_path)
+                    #title = extract_markdown_title(contents) 
+                elif file.endswith(".html"):
+                    contents = extract_plain_text_from_html(file_path)
+                    #title = extract_html_title(contents)
+                # ... Add more cases for other file types
+                if contents:
+                    writer.writerow([url, contents])
+
+        
 def get_data() -> None:
-    """Extract `vector_database_wikipedia_articles_embedded.csv` to `/data`."""
+    """Extract `surreal db docs` to `/data`."""
     logger = setup_logger("get-data")
 
-    logger.info("Downloading Wikipedia")
-    wget.download(
-        url="https://cdn.openai.com/API/examples/data/"
-        "vector_database_wikipedia_articles_embedded.zip",
-        out="data/vector_database_wikipedia_articles_embedded.zip",
-    )
 
-    logger.info("Extracting")
-    with zipfile.ZipFile(
-        "data/vector_database_wikipedia_articles_embedded.zip", "r"
-    ) as zip_ref:
-        zip_ref.extractall("data")
+    repo_to_extract = "https://github.com/surrealdb/docs.surrealdb.com";
+    out_dir = "Surreal_Docs_Rag/"
+    out_csv =  "surreal_docs.txt";
 
+    extract_file_info(repo_to_extract, out_dir, out_csv);
     logger.info("Extracted file successfully. Please check the data folder")
 
 
 def surreal_insert() -> None:
-    """Main entrypoint to insert Wikipedia embeddings into SurrealDB."""
+    """Main entrypoint to insert Surreal Docs embeddings into SurrealDB."""
     logger = setup_logger("surreal_insert")
-
+    
+    out_dir = "Surreal_Docs_Rag/"
+    out_csv =  "surreal_docs.txt";
+    
+    path_to_csv = out_dir +  out_csv;
+    
     total_chunks = TOTAL_ROWS // CHUNK_SIZE + (
         1 if TOTAL_ROWS % CHUNK_SIZE else 0
     )
@@ -241,31 +292,24 @@ def surreal_insert() -> None:
     with tqdm.tqdm(total=total_chunks, desc="Inserting") as pbar:
         for chunk in tqdm.tqdm(
             pd.read_csv(
-                "data/vector_database_wikipedia_articles_embedded.csv",
+                path_to_csv,
                 usecols=[
                     "url",
-                    "title",
-                    "text",
-                    "title_vector",
-                    "content_vector",
+                    "contents"
                 ],
                 chunksize=CHUNK_SIZE,
             ),
         ):
             formatted_rows = [
-                FORMATTED_RECORD_FOR_INSERT_WIKI_EMBEDDING.substitute(
+                FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
                     url=row["url"],
-                    title=row["title"]
-                    .replace("\\", "\\\\")
-                    .replace('"', '\\"'),
-                    text=row["text"].replace("\\", "\\\\").replace('"', '\\"'),
-                    title_vector=ast.literal_eval(row["title_vector"]),
-                    content_vector=ast.literal_eval(row["content_vector"]),
+                    contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
+                    content_vector=[],
                 )
                 for _, row in chunk.iterrows()  # type: ignore
             ]
             connection.query(
-                query=INSERT_WIKI_EMBEDDING_QUERY.substitute(
+                query=INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
                     records=",\n ".join(formatted_rows)
                 )
             )
