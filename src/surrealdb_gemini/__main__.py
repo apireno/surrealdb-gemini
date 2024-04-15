@@ -272,7 +272,7 @@ def get_docs_data() -> None:
     logger.info("Extracted file successfully. Please check the folder {0} for the data file named {1}".format(out_dir,out_csv))
 
 
-def surreal_insert() -> None:
+def surreal_docs_insert() -> None:
     """Main entrypoint to insert Surreal Docs embeddings into SurrealDB."""
     logger = setup_logger("surreal_insert")
     
