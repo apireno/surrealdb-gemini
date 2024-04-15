@@ -2,6 +2,8 @@
 HOST := localhost
 PORT := 8080
 ADDRESS := $(HOST):$(PORT)
+NS := surrealdb-gemini
+DB := surrealdb-gemini
 
 .PHONY: help
 # See <https://gist.github.com/klmr/575726c7e05d8780505a> for explanation
@@ -24,8 +26,8 @@ surreal-start: ## Start SurrealDB
 
 .PHONY: surreal-init
 surreal-init: ## Initialise SurrealDB to populate with data
-	surreal import --conn http://$(ADDRESS) --user root --pass root --ns test --db test schema/define_ns_db.surql
-	surreal import --conn http://$(ADDRESS) --user root --pass root --ns test --db test schema/chats.surql
+	surreal import --conn http://$(ADDRESS) --user root --pass root --ns $(NS) --db $(DB) schema/define_ns_db.surql
+	surreal import --conn http://$(ADDRESS) --user root --pass root --ns $(NS) --db $(DB) schema/chats.surql
 
 .PHONY: surreal-remove
 surreal-remove: ## Remove the SurealDB database
