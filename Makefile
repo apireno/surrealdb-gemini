@@ -39,7 +39,7 @@ surreal-sql: ## Surreal SQL
 
 .PHONY: server-start
 server-start: ## Start FastAPI server
-	uvicorn src.surrealdb_openai.__main__:app --reload
+	uvicorn src.surrealdb_gemini.__main__:app --reload
 
 .PHONY: pycache-remove
 pycache-remove:
