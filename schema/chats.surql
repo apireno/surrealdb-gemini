@@ -5,32 +5,24 @@ This file defines the SurrealQL for the chat functionality of this project.
 # We are required to specify the namespace and database we want our resources to reside in.
 USE NS test; USE DB test;
 
-# Define the `wiki_embedding` table.
-DEFINE TABLE IF NOT EXISTS wiki_embedding SCHEMAFULL;
+# Define the `surreal_doc_embedding` table.
+DEFINE TABLE IF NOT EXISTS surreal_doc_embedding SCHEMAFULL;
 
-DEFINE FIELD IF NOT EXISTS url ON TABLE wiki_embedding TYPE string
+DEFINE FIELD IF NOT EXISTS url ON TABLE surreal_doc_embedding TYPE string
     # Field must be a URL.
     ASSERT string::is::url($value);
 
-DEFINE FIELD IF NOT EXISTS title ON TABLE wiki_embedding TYPE string
+DEFINE FIELD IF NOT EXISTS contents ON TABLE surreal_doc_embedding TYPE string
     # Field must be non-empty
     ASSERT string::len($value) > 0;
-
-DEFINE FIELD IF NOT EXISTS text ON TABLE wiki_embedding TYPE string
-    # Field must be non-empty
-    ASSERT string::len($value) > 0;
-
-DEFINE FIELD IF NOT EXISTS  title_vector ON TABLE wiki_embedding TYPE array<float>
-    # Field must have length 1536 to use embedding model: text-embedding-ada-002
-    ASSERT array::len($value) = 1536;
 
 DEFINE FIELD IF NOT EXISTS content_vector ON TABLE wiki_embedding TYPE array<float>
-    # Field must have length 1536 to use embedding model: text-embedding-ada-002
-    ASSERT array::len($value) = 1536;
+    # Field must have length 768 to use embedding model: embedding-001
+    ASSERT array::len($value) = 768;
 
 DEFINE INDEX IF NOT EXISTS wiki_embedding_content_vector_index ON wiki_embedding
     FIELDS content_vector
-    MTREE DIMENSION 1536
+    MTREE DIMENSION 768
     DIST COSINE;
 
 # Define the `chat` table.
@@ -85,12 +77,30 @@ DEFINE INDEX IF NOT EXISTS unique_sent_message_in_chat
 Insert your token into this function before importing into SurrealDB.
 
 Returns:
-    string: Bearer token.
+    string:  token.
 */
-DEFINE FUNCTION IF NOT EXISTS fn::get_openai_token() {
+DEFINE FUNCTION fn::get_gemini_token() {
+    RETURN "<token - goes - here>"
 };
 
-/* OpenAI embeddings complete.
+
+
+DEFINE FUNCTION fn::get_embed_api_url($embedding_model: string){
+ return string::concat("https://generativelanguage.googleapis.com/v1/models/",$embedding_model,":embedContent?key=",fn::get_gemini_token());
+
+};
+
+
+DEFINE FUNCTION fn::get_generateContent_api_url($llm: string){
+ return string::concat("https://generativelanguage.googleapis.com/v1/models/",$llm,":generateContent?key=",fn::get_gemini_token());
+
+};
+
+
+
+
+
+/* Gemini embeddings complete.
 
 Args:
     embeddings_model: Embedding model from OpenAI.
@@ -99,45 +109,51 @@ Args:
 Returns:
     array<float>: Array of embeddings.
 */
-DEFINE FUNCTION IF NOT EXISTS fn::embeddings_complete($embedding_model: string, $input: string) {
-    RETURN http::post(
-        "https://api.openai.com/v1/embeddings",
-        {
-            "model": $embedding_model,
-            "input": $input
-        },
-        {
-            "Authorization": fn::get_openai_token()
-        }
-    )["data"][0]["embedding"]
-};
 
+DEFINE FUNCTION fn::embeddings_complete($embedding_model: string, $input: string) {
+
+#     TASK_TYPE_UNSPECIFIED	Unset value, which will default to one of the other enum values.
+# RETRIEVAL_QUERY	Specifies the given text is a query in a search/retrieval setting.
+# RETRIEVAL_DOCUMENT	Specifies the given text is a document from the corpus being searched.
+# SEMANTIC_SIMILARITY	Specifies the given text will be used for STS.
+# CLASSIFICATION	Specifies that the given text will be classified.
+# CLUSTERING	Specifies that the embeddings will be used for clustering.
+    RETURN http::post(
+        fn::get_embed_api_url($embedding_model),
+        {
+            "content":
+            {
+                "parts":
+                [
+                    {
+                        "text":$input
+                    }
+                ]
+
+                
+            },
+            "taskType": "SEMANTIC_SIMILARITY",
+        }
+    )["embedding"]["values"]
+};
 /* Search for documents using embeddings.
 
 Args:
-    embeddings_model: Embedding model from OpenAI.
+    embeddings_model: Embedding model from Gemini.
     input: User input.
 
 Returns:
     array<float>: Array of embeddings.
 */
-DEFINE FUNCTION IF NOT EXISTS fn::search_for_documents($input_vector: array<float>, $threshold: float) {
-   LET $context = (
-     SELECT
-        url,
-        title,
-        text
-    FROM wiki_embedding
+DEFINE FUNCTION fn::search_for_documents($input_vector: array<float>, $threshold: float) {
+    return string::concat((
+    SELECT
+        value string::concat([url," ",contents," "])
+    FROM surreal_doc_embedding
     WHERE
-        content_vector <|1|> $input_vector
-            AND vector::similarity::cosine(content_vector, $input_vector) >= $threshold
-    )[0];
+        content_vector <|10|> $input_vector
+            AND vector::similarity::cosine(content_vector, $input_vector) >= $threshold));
 
-    RETURN IF !$context THEN
-        ""
-    ELSE
-        type::string($context)
-    END
 };
 
 
@@ -149,10 +165,11 @@ Args:
 Returns:
     string: Prompt with context.
 */
-DEFINE FUNCTION IF NOT EXISTS fn::get_prompt_with_context($context: string) {
-    LET $prompt = "You are an AI assistant answering questions about anything from Simple English Wikipedia the context will provide you with the most relevant data from Simple English Wikipedia including the page title, url, and page content.
 
-    If referencing the text/context refer to it as Simple English Wikipedia.
+DEFINE FUNCTION fn::get_prompt_with_context($context: string) {
+    LET $prompt = "You are an AI assistant answering questions about anything from SurrealDB Documentation the context will provide you with the most relevant data from SurrealDB Documentation including the page title, url, and page content.
+
+    If referencing the text/context refer to it as SSurrealDB Documentation.
 
     Please provide your response in Markdown converted to HTML format. Include appropriate headings and lists where relevant.
 
@@ -170,7 +187,8 @@ DEFINE FUNCTION IF NOT EXISTS fn::get_prompt_with_context($context: string) {
     RETURN string::replace($prompt, '$context', $context);
 };
 
-/* OpenAI chat complete.
+
+/* Gemini chat complete.
 
 Args:
     llm: Large Language Model to use for generation.
@@ -180,30 +198,31 @@ Args:
 Returns:
     string: Response from LLM.
 */
-DEFINE FUNCTION IF NOT EXISTS fn::chat_complete($llm: string, $input: string, $prompt_with_context: string, $temperature: float) {
-    LET $response = http::post(
-        "https://api.openai.com/v1/chat/completions",
+DEFINE FUNCTION fn::chat_complete($llm: string, $prompt_with_context: string, $input: string) {
+    RETURN http::post(
+        fn::get_generateContent_api_url($llm),
         {
-            "model": $llm,
-            "messages": [
+        "contents": [
+            {
+            "parts": [
                 {
-                 "role": "system",
-                 "content": $prompt_with_context
+                    "text": $prompt_with_context
                 },
                 {
-                    "role": "user", "content": $input
-                },
-            ],
-        "temperature": $temperature
-    },
-    {
-        "Authorization": fn::get_openai_token()
+                    "text": $input
+                }
+            ]
+            #,"role": string
+            }
+        ]
+#         ,
+#         "generationConfig": {
+#             object (GenerationConfig)
+#         }
     }
-    )["choices"][0]["message"]["content"];
-
-    # Sometimes there are double quotes
-    RETURN string::replace($response, '"', '');
+    );
 };
+
 
 /* Perfrom RAG using the `text-embedding-ada-002` model for embeddings.
 
@@ -215,12 +234,19 @@ Args:
 Returns:
     string: Response from LLM.
 */
-DEFINE FUNCTION IF NOT EXISTS fn::surreal_rag($llm: string, $input: string, $threshold: float, $temperature: float) {
-    LET $input_vector = fn::embeddings_complete("text-embedding-ada-002", $input);
-    LET $context_document = fn::search_for_documents($input_vector, $threshold);
+
+DEFINE FUNCTION fn::surreal_rag($llm: string, $input: string, $threshold: float) {
+
+
+    LET $input_vector = fn::embeddings_complete("embedding-001", $input);
+
+    LET $context_document = fn::search_for_documents($input_vector,$threshold);
+
     LET $prompt_with_context = fn::get_prompt_with_context($context_document);
-    RETURN fn::chat_complete($llm, $input, $prompt_with_context, $temperature);
+
+    RETURN fn::chat_complete($llm, $prompt_with_context,$input);
 };
+
 
 /* Create a message.
 
@@ -230,7 +256,7 @@ Args:
     content: Sent message content.
 
 Returns:
-    oject: Content and timestamp.
+    object: Content and timestamp.
 */
 DEFINE FUNCTION IF NOT EXISTS fn::create_message(
     $chat_id: record<chat>, 
