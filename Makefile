@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-HOST := 0.0.0.0
+HOST := localhost
 PORT := 8080
 ADDRESS := $(HOST):$(PORT)
 
