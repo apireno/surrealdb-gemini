@@ -2,17 +2,6 @@
 This file defines the SurrealQL for the chat functionality of this project.
 */
 
-/* Get Gemini token.
-
-Insert your token into this function before importing into SurrealDB.
-
-Returns:
-    string:  token.
-*/
-DEFINE FUNCTION fn::get_gemini_token() {
-    RETURN "<token - goes - here>"
-};
-
 
 
 
