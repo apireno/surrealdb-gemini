@@ -26,7 +26,7 @@ dependencies = [
 
 [project.scripts]
 surreal-insert = "surrealdb_gemini.__main__:surreal_insert"
-get-data = "surrealdb_gemini.__main__:get_data"
+get-docs-data = "surrealdb_gemini.__main__:get_docs_data"
 
 [tool.ruff]
 target-version = "py311"
