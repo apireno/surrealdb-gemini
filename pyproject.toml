@@ -22,7 +22,8 @@ dependencies = [
     "uvicorn",
     "jinja2",
     "python-multipart",
-    "GitPython"
+    "GitPython",
+    "beautifulsoup4"
 ]
 
 [project.scripts]
