@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-HOST := localhost
+HOST := 0.0.0.0
 PORT := 8080
 ADDRESS := $(HOST):$(PORT)
 NS := surrealdb-gemini
