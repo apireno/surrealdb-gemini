@@ -3,11 +3,11 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "surrealdb_openai"
+name = "surrealdb_gemini"
 version = "0"
-description = "Example of RAG using SurrealDB and OpenAI"
+description = "Example of RAG using SurrealDB and Gemini"
 authors = [
-    {name="Cellan Hall", email="cellan.hall@gmail.com"}
+    {name="Alessandro Pireno", email="alessandro@pireno.com"}
 ]
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -25,8 +25,8 @@ dependencies = [
 ]
 
 [project.scripts]
-surreal-insert = "surrealdb_openai.__main__:surreal_insert"
-get-data = "surrealdb_openai.__main__:get_data"
+surreal-insert = "surrealdb_gemini.__main__:surreal_insert"
+get-data = "surrealdb_gemini.__main__:get_data"
 
 [tool.ruff]
 target-version = "py311"
