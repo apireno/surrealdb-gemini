@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup  # For HTML parsing
 import markdown  # For Markdown parsing 
 
 FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING = string.Template(
-    """{url: "$url", contents: s"$contents", content_vector: $content_vector}"""
+    """{url: "$url", contents: s"$contents"}"""
 )
 
 INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
@@ -307,7 +307,6 @@ def surreal_docs_insert() -> None:
                 FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
                     url=row["url"],
                     contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
-                    content_vector=[],
                 )
                 for _, row in chunk.iterrows()  # type: ignore
             ]
