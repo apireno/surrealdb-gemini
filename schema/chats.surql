@@ -2,6 +2,21 @@
 This file defines the SurrealQL for the chat functionality of this project.
 */
 
+/* Get Gemini token.
+
+Insert your token into this function before importing into SurrealDB.
+
+Returns:
+    string:  token.
+*/
+DEFINE FUNCTION fn::get_gemini_token() {
+    RETURN "<token - goes - here>"
+};
+
+
+
+
+
 # We are required to specify the namespace and database we want our resources to reside in.
 USE NS surreal_gemini; USE DB surreal_gemini;
 
@@ -72,17 +87,6 @@ DEFINE FIELD IF NOT EXISTS timestamp ON TABLE sent TYPE datetime
 DEFINE INDEX IF NOT EXISTS unique_sent_message_in_chat
     ON TABLE sent
     COLUMNS in, out UNIQUE;
-
-/* Get OpenAI token.
-
-Insert your token into this function before importing into SurrealDB.
-
-Returns:
-    string:  token.
-*/
-DEFINE FUNCTION fn::get_gemini_token() {
-    RETURN "<token - goes - here>"
-};
 
 
 
