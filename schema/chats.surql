@@ -3,7 +3,7 @@ This file defines the SurrealQL for the chat functionality of this project.
 */
 
 # We are required to specify the namespace and database we want our resources to reside in.
-USE NS test; USE DB test;
+USE NS surreal_gemini; USE DB surreal_gemini;
 
 # Define the `surreal_doc_embedding` table.
 DEFINE TABLE IF NOT EXISTS surreal_doc_embedding SCHEMAFULL;
