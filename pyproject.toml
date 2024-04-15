@@ -23,7 +23,8 @@ dependencies = [
     "jinja2",
     "python-multipart",
     "GitPython",
-    "beautifulsoup4"
+    "beautifulsoup4",
+    "markdown"
 ]
 
 [project.scripts]
