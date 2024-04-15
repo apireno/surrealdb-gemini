@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.scripts]
-surreal-insert = "surrealdb_gemini.__main__:surreal_insert"
+surreal-docs-insert = "surrealdb_gemini.__main__:surreal_docs_insert"
 get-docs-data = "surrealdb_gemini.__main__:get_docs_data"
 
 [tool.ruff]
