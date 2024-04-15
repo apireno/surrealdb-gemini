@@ -16,6 +16,7 @@ DEFINE FIELD IF NOT EXISTS contents ON TABLE surreal_doc_embedding TYPE string
     # Field must be non-empty
     ASSERT string::len($value) > 0;
 
+
 DEFINE FIELD IF NOT EXISTS content_vector ON TABLE surreal_doc_embedding TYPE array<float>
     # Field must have length 768 to use embedding model: embedding-001
     ASSERT array::len($value) = 768;
