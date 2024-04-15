@@ -36,6 +36,7 @@ CHUNK_SIZE = 100
 
 NS = "surreal_gemini"
 DB = "surreal_gemini"
+SURREAL_DB_ADDRESS = "ws://0.0.0.0:8080/"
 
 def extract_id(surrealdb_id: str) -> str:
     """Extract numeric ID from SurrealDB record ID.
@@ -268,7 +269,7 @@ def get_docs_data() -> None:
     out_csv =  "surreal_docs.txt";
 
     extract_file_info(repo_to_extract, out_dir, out_csv);
-    logger.info("Extracted file successfully. Please check the data folder")
+    logger.info("Extracted file successfully. Please check the folder {0} for the data file named {1}".format(out_dir,out_csv))
 
 
 def surreal_insert() -> None:
@@ -285,7 +286,7 @@ def surreal_insert() -> None:
     )
 
     logger.info("Connecting to SurrealDB")
-    connection = surrealdb.SurrealDB("ws://localhost:8080/rpc")
+    connection = surrealdb.SurrealDB(SURREAL_DB_ADDRESS)
     connection.signin(data={"username": "root", "password": "root"})
     connection.use_namespace(NS)
     connection.use_database(DB)
