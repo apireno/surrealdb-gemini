@@ -258,7 +258,7 @@ def extract_file_info(repo_path, repo_dir, csv_filename):
                     writer.writerow([url, contents])
 
         
-def get_data() -> None:
+def get_docs_data() -> None:
     """Extract `surreal db docs` to `/data`."""
     logger = setup_logger("get-data")
 
