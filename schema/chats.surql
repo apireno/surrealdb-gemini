@@ -37,10 +37,10 @@ DEFINE FIELD IF NOT EXISTS content_vector ON TABLE surreal_doc_embedding TYPE ar
     # ASSERT array::len($value) = 768
 ;
 
-DEFINE INDEX IF NOT EXISTS surreal_doc_embedding_content_vector_index ON surreal_doc_embedding
-    FIELDS content_vector
-    MTREE DIMENSION 768
-    DIST COSINE;
+#DEFINE INDEX IF NOT EXISTS surreal_doc_embedding_content_vector_index ON surreal_doc_embedding
+#    FIELDS content_vector
+#    MTREE DIMENSION 768
+#    DIST COSINE;
 
 # Define the `chat` table.
 DEFINE TABLE IF NOT EXISTS chat SCHEMAFULL;
