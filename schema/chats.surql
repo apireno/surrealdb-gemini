@@ -16,11 +16,11 @@ DEFINE FIELD IF NOT EXISTS contents ON TABLE surreal_doc_embedding TYPE string
     # Field must be non-empty
     ASSERT string::len($value) > 0;
 
-DEFINE FIELD IF NOT EXISTS content_vector ON TABLE wiki_embedding TYPE array<float>
+DEFINE FIELD IF NOT EXISTS content_vector ON TABLE surreal_doc_embedding TYPE array<float>
     # Field must have length 768 to use embedding model: embedding-001
     ASSERT array::len($value) = 768;
 
-DEFINE INDEX IF NOT EXISTS wiki_embedding_content_vector_index ON wiki_embedding
+DEFINE INDEX IF NOT EXISTS surreal_doc_embedding_content_vector_index ON surreal_doc_embedding
     FIELDS content_vector
     MTREE DIMENSION 768
     DIST COSINE;
