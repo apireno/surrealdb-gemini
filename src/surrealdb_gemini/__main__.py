@@ -31,8 +31,7 @@ INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
     """
 )
 
-UPDATE_SURREAL_DOC_EMBEDDING_QUERY = 
-    """
+UPDATE_SURREAL_DOC_EMBEDDING_QUERY = """
     UPDATE surreal_doc_embedding SET content_vector=fn::embeddings_complete("embedding-001", contents) WHERE content_vector = none;
     """
 
