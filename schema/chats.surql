@@ -312,8 +312,7 @@ DEFINE FUNCTION IF NOT EXISTS fn::create_system_message($chat_id: record<chat>) 
         FETCH out
     ).content;
 
-    LET $llm_response = fn::surreal_rag("gpt-3.5-turbo", $last_user_message_content, 0.85, 0.5);
-
+    LET $llm_response = fn::surreal_rag("gemini-pro", $last_user_message_content, 0.6);
     RETURN fn::create_message($chat_id, "system", $llm_response);
 };
 
