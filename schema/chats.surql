@@ -215,7 +215,7 @@ DEFINE FUNCTION fn::chat_complete($llm: string, $prompt_with_context: string, $i
 #             object (GenerationConfig)
 #         }
     }
-    );
+    )["candidates"][0]["content"]["parts"][0]["text"];
 };
 
 
