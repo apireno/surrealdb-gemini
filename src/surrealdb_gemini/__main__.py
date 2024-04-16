@@ -84,7 +84,7 @@ life_span = {}
 @contextlib.asynccontextmanager
 async def lifespan(_: fastapi.FastAPI) -> AsyncGenerator:
     """FastAPI lifespan to create and destroy objects."""
-    connection = surrealdb.AsyncSurrealDB(url="ws://localhost:8080/rpc")
+    connection = surrealdb.AsyncSurrealDB(url=SURREAL_DB_ADDRESS)
     await connection.connect()
     await connection.signin(data={"username": "root", "password": "root"})
     await connection.use_namespace(NS)
