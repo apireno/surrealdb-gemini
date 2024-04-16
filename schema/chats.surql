@@ -340,7 +340,7 @@ DEFINE FUNCTION IF NOT EXISTS fn::generate_chat_title($chat_id: record<chat>) {
     LET $system_prompt = "You are a conversation title generator for a ChatGPT type app. Respond only with a simple title using the user input.";
 
     # Use the Chat Complete API from OpenAI to generate the chat title.
-    LET $generated_title = fn::chat_complete("gpt-3.5-turbo", $first_message, $system_prompt, 0.0);
+    LET $generated_title = fn::chat_complete("gemini-pro", $first_message, $system_prompt);
 
     # Update the title of the chat and return the title.
     RETURN 
