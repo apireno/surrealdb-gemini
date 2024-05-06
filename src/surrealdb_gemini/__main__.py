@@ -327,5 +327,10 @@ def surreal_docs_insert() -> None:
                 INSERT_SURREAL_DOC_EMBEDDING_QUERY
             )
             pbar.update(1)
-            UPDATE_SURREAL_DOC_EMBEDDING_QUERY
+              
+            
+            connection.query(
+                UPDATE_SURREAL_DOC_EMBEDDING_QUERY
+            )
+            pbar.update(1)
             
