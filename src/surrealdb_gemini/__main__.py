@@ -317,14 +317,14 @@ def surreal_docs_insert() -> None:
                 for _, row in chunk.iterrows()  # type: ignore
             ]
             connection.query(
-                query=INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
+                INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
                     records=",\n ".join(formatted_rows)
                 )
             )
             pbar.update(1)
 
             connection.query(
-                query=INSERT_SURREAL_DOC_EMBEDDING_QUERY
+                INSERT_SURREAL_DOC_EMBEDDING_QUERY
             )
             pbar.update(1)
             UPDATE_SURREAL_DOC_EMBEDDING_QUERY
