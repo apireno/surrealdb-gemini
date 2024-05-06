@@ -297,7 +297,7 @@ async def surreal_docs_insert() -> None:
     await db.use(NS,DB)
 
     logger.info("Inserting rows into SurrealDB")
-    await df = pd.read_csv(
+    df = await pd.read_csv(
                 path_to_csv,
                 usecols=[
                     "url",
