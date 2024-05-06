@@ -294,7 +294,7 @@ def surreal_docs_insert() -> None:
 
     logger.info("Connecting to SurrealDB")
     connection = Surreal(SURREAL_DB_ADDRESS)
-    connection.signin(data={"username": "root", "password": "root"})
+    connection.signin({"username": "root", "password": "root"})
     connection.use_namespace(NS)
     connection.use_database(DB)
 
