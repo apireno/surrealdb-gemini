@@ -305,7 +305,7 @@ def surreal_docs_insert() -> None:
                 ]
             );
             
-    await formatted_rows = [
+    formatted_rows = [
         FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
             url=row["url"],
             contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
