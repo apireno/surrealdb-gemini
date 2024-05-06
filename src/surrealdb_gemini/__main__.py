@@ -11,6 +11,7 @@ import zipfile
 import fastapi
 import pandas as pd
 from surrealdb import Surreal
+from surrealdb import SurrealDB
 import tqdm
 import wget
 from fastapi import templating, responses, staticfiles
