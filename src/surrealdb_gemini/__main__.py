@@ -11,7 +11,6 @@ import zipfile
 import fastapi
 import pandas as pd
 from surrealdb import Surreal
-from surrealdb import SurrealDB
 import tqdm
 import wget
 from fastapi import templating, responses, staticfiles
@@ -61,7 +60,7 @@ def surreal_docs_insert() -> None:
     logger.info("reading file {0}".format(path_to_csv))
 
     logger.info("Connecting to SurrealDB")
-    db = SurrealDB(SURREAL_DB_ADDRESS)
+    db = Surreal(SURREAL_DB_ADDRESS)
     db.signin({"username": "root", "password": "root"})
     db.use(NS,DB)
 
