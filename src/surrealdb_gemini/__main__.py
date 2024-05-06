@@ -45,6 +45,67 @@ NS = "surreal_gemini"
 DB = "surreal_gemini"
 SURREAL_DB_ADDRESS = "ws://0.0.0.0:8080/"
 
+
+
+def surreal_docs_insert() -> None:
+    """Main entrypoint to insert Surreal Docs embeddings into SurrealDB."""
+    logger = setup_logger("surreal_insert")
+    
+    out_dir = "Surreal_Docs_Rag/"
+    out_csv =  "surreal_docs.txt";
+    
+    path_to_csv = out_dir +  out_csv;
+    
+   
+    logger.info("reading file {0}".format(path_to_csv))
+
+    logger.info("Connecting to SurrealDB")
+    db = SurrealDB(SURREAL_DB_ADDRESS)
+    db.signin({"username": "root", "password": "root"})
+    db.use(NS,DB)
+
+    logger.info("Inserting rows into SurrealDB")
+    df = pd.read_csv(
+                path_to_csv,
+                usecols=[
+                    "url",
+                    "contents"
+                ]
+            );
+            
+    formatted_rows = await [
+        FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
+            url=row["url"],
+            contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
+        )
+        for _, row in df.iterrows()  # type: ignore
+    ]
+
+    query = INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
+            records=",\n ".join(formatted_rows)
+        )
+    #
+
+    result = db.query(
+        query
+    )
+
+    logger.info("insert result {0}".format(result))
+
+
+    #logger.info("executing {0}".format(UPDATE_SURREAL_DOC_EMBEDDING_QUERY))
+    result = db.query(
+        UPDATE_SURREAL_DOC_EMBEDDING_QUERY
+    )
+
+    logger.info("update result {0}".format(result))
+
+
+
+
+
+
+
 def extract_id(surrealdb_id: str) -> str:
     """Extract numeric ID from SurrealDB record ID.
 
@@ -278,59 +339,6 @@ def get_docs_data() -> None:
     extract_file_info(repo_to_extract, out_dir, out_csv);
     logger.info("Extracted file successfully. Please check the folder {0} for the data file named {1}".format(out_dir,out_csv))
 
-
-def surreal_docs_insert() -> None:
-    """Main entrypoint to insert Surreal Docs embeddings into SurrealDB."""
-    logger = setup_logger("surreal_insert")
-    
-    out_dir = "Surreal_Docs_Rag/"
-    out_csv =  "surreal_docs.txt";
-    
-    path_to_csv = out_dir +  out_csv;
-    
-   
-    logger.info("reading file {0}".format(path_to_csv))
-
-    logger.info("Connecting to SurrealDB")
-    db = Surreal(SURREAL_DB_ADDRESS)
-    db.signin({"username": "root", "password": "root"})
-    db.use(NS,DB)
-
-    logger.info("Inserting rows into SurrealDB")
-    df = pd.read_csv(
-                path_to_csv,
-                usecols=[
-                    "url",
-                    "contents"
-                ]
-            );
-            
-    formatted_rows = await [
-        FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
-            url=row["url"],
-            contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
-        )
-        for _, row in df.iterrows()  # type: ignore
-    ]
-
-    query = INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
-            records=",\n ".join(formatted_rows)
-        )
-    #
-
-    db.query(
-        query
-    )
-
-    #logger.info("insert result {0}".format(result))
-
-
-    #logger.info("executing {0}".format(UPDATE_SURREAL_DOC_EMBEDDING_QUERY))
-    db.query(
-        UPDATE_SURREAL_DOC_EMBEDDING_QUERY
-    )
-
-    #logger.info("update result {0}".format(result))
 
     
             
