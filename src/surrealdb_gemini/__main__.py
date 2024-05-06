@@ -288,9 +288,7 @@ def surreal_docs_insert() -> None:
     
     path_to_csv = out_dir +  out_csv;
     
-    total_chunks = TOTAL_ROWS // CHUNK_SIZE + (
-        1 if TOTAL_ROWS % CHUNK_SIZE else 0
-    )
+   
     logger.info("reading file {0}".format(path_to_csv))
 
     logger.info("Connecting to SurrealDB")
@@ -299,39 +297,35 @@ def surreal_docs_insert() -> None:
     connection.use(NS,DB)
 
     logger.info("Inserting rows into SurrealDB")
-    with tqdm.tqdm(total=total_chunks, desc="Inserting") as pbar:
-        for chunk in tqdm.tqdm(
-            pd.read_csv(
+    df = pd.read_csv(
                 path_to_csv,
                 usecols=[
                     "url",
                     "contents"
-                ],
-                chunksize=CHUNK_SIZE,
-            ),
-        ):
-            formatted_rows = [
-                FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
-                    url=row["url"],
-                    contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
-                )
-                for _, row in chunk.iterrows()  # type: ignore
-            ]
-
-            query = INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
-                    records=",\n ".join(formatted_rows)
-                )
-            logger.info("executing {0}".format(query))
-
-    
-            connection.query(
-                query
-            )
-
-            logger.info("executing {0}".format(UPDATE_SURREAL_DOC_EMBEDDING_QUERY))
-            connection.query(
-                UPDATE_SURREAL_DOC_EMBEDDING_QUERY
-            )
-            pbar.update(1)
+                ]
+            );
             
+    formatted_rows = [
+        FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
+            url=row["url"],
+            contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
+        )
+        for _, row in df.iterrows()  # type: ignore
+    ]
+
+    query = INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
+            records=",\n ".join(formatted_rows)
+        )
+    #logger.info("executing {0}".format(query))
+
+
+    connection.query(
+        query
+    )
+
+    #logger.info("executing {0}".format(UPDATE_SURREAL_DOC_EMBEDDING_QUERY))
+    connection.query(
+        UPDATE_SURREAL_DOC_EMBEDDING_QUERY
+    )
+    
             
