@@ -295,8 +295,7 @@ def surreal_docs_insert() -> None:
     logger.info("Connecting to SurrealDB")
     connection = Surreal(SURREAL_DB_ADDRESS)
     connection.signin({"username": "root", "password": "root"})
-    connection.use_namespace(NS)
-    connection.use_database(DB)
+    connection.use(NS,DB)
 
     logger.info("Inserting rows into SurrealDB")
     with tqdm.tqdm(total=total_chunks, desc="Inserting") as pbar:
