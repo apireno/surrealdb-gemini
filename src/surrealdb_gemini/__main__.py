@@ -316,16 +316,21 @@ def surreal_docs_insert() -> None:
     query = INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
             records=",\n ".join(formatted_rows)
         )
-    #logger.info("executing {0}".format(query))
+    #
 
-
-    connection.query(
+    result = connection.query(
         query
     )
 
+    logger.info("insert result {0}".format(result))
+
+
     #logger.info("executing {0}".format(UPDATE_SURREAL_DOC_EMBEDDING_QUERY))
-    connection.query(
+    result = connection.query(
         UPDATE_SURREAL_DOC_EMBEDDING_QUERY
     )
+
+    logger.info("update result {0}".format(result))
+
     
             
