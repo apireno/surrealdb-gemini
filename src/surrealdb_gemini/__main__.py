@@ -291,6 +291,7 @@ def surreal_docs_insert() -> None:
     total_chunks = TOTAL_ROWS // CHUNK_SIZE + (
         1 if TOTAL_ROWS % CHUNK_SIZE else 0
     )
+    logger.info("reading file {0}".format(path_to_csv))
 
     logger.info("Connecting to SurrealDB")
     connection = Surreal(SURREAL_DB_ADDRESS)
@@ -316,21 +317,21 @@ def surreal_docs_insert() -> None:
                 )
                 for _, row in chunk.iterrows()  # type: ignore
             ]
-            connection.query(
-                INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
+
+            query = INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
                     records=",\n ".join(formatted_rows)
                 )
-            )
-            pbar.update(1)
+            logger.info("executing {0}".format(query))
 
+    
             connection.query(
-                INSERT_SURREAL_DOC_EMBEDDING_QUERY
+                query
             )
-            pbar.update(1)
-              
-            
+
+            logger.info("executing {0}".format(UPDATE_SURREAL_DOC_EMBEDDING_QUERY))
             connection.query(
                 UPDATE_SURREAL_DOC_EMBEDDING_QUERY
             )
             pbar.update(1)
+            
             
