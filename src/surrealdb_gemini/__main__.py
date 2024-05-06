@@ -279,7 +279,7 @@ def get_docs_data() -> None:
     logger.info("Extracted file successfully. Please check the folder {0} for the data file named {1}".format(out_dir,out_csv))
 
 
-def surreal_docs_insert() -> None:
+async def surreal_docs_insert() -> None:
     """Main entrypoint to insert Surreal Docs embeddings into SurrealDB."""
     logger = setup_logger("surreal_insert")
     
@@ -292,9 +292,9 @@ def surreal_docs_insert() -> None:
     logger.info("reading file {0}".format(path_to_csv))
 
     logger.info("Connecting to SurrealDB")
-    connection = Surreal(SURREAL_DB_ADDRESS)
-    connection.signin({"username": "root", "password": "root"})
-    connection.use(NS,DB)
+    await connection = Surreal(SURREAL_DB_ADDRESS)
+    await connection.signin({"username": "root", "password": "root"})
+    await connection.use(NS,DB)
 
     logger.info("Inserting rows into SurrealDB")
     df = pd.read_csv(
@@ -305,7 +305,7 @@ def surreal_docs_insert() -> None:
                 ]
             );
             
-    formatted_rows = [
+    await formatted_rows = [
         FORMATTED_RECORD_FOR_INSERT_SURREAL_DOC_EMBEDDING.substitute(
             url=row["url"],
             contents=row["contents"].replace("\\", "\\\\").replace('"', '\\"'),
@@ -318,7 +318,7 @@ def surreal_docs_insert() -> None:
         )
     #
 
-    result = connection.query(
+    await result = connection.query(
         query
     )
 
@@ -326,7 +326,7 @@ def surreal_docs_insert() -> None:
 
 
     #logger.info("executing {0}".format(UPDATE_SURREAL_DOC_EMBEDDING_QUERY))
-    result = connection.query(
+    await result = connection.query(
         UPDATE_SURREAL_DOC_EMBEDDING_QUERY
     )
 
