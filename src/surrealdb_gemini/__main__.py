@@ -294,8 +294,8 @@ def surreal_docs_insert() -> None:
 
     logger.info("Connecting to SurrealDB")
     connection = Surreal(SURREAL_DB_ADDRESS)
-    connection.signin({"username": "root", "password": "root"})
-    connection.use(NS,DB)
+    await connection.signin({"username": "root", "password": "root"})
+    await connection.use(NS,DB)
 
     logger.info("Inserting rows into SurrealDB")
     with tqdm.tqdm(total=total_chunks, desc="Inserting") as pbar:
@@ -316,20 +316,20 @@ def surreal_docs_insert() -> None:
                 )
                 for _, row in chunk.iterrows()  # type: ignore
             ]
-            connection.query(
+            await connection.query(
                 INSERT_SURREAL_DOC_EMBEDDING_QUERY.substitute(
                     records=",\n ".join(formatted_rows)
                 )
             )
             pbar.update(1)
 
-            connection.query(
+            await connection.query(
                 INSERT_SURREAL_DOC_EMBEDDING_QUERY
             )
             pbar.update(1)
               
             
-            connection.query(
+            await connection.query(
                 UPDATE_SURREAL_DOC_EMBEDDING_QUERY
             )
             pbar.update(1)
