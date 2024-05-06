@@ -10,7 +10,8 @@ import zipfile
 
 import fastapi
 import pandas as pd
-from surrealdb import Surreal
+from surrealdb import SurrealDB
+from surrealdb import AsyncSurrealDB
 import tqdm
 import wget
 from fastapi import templating, responses, staticfiles
@@ -60,7 +61,7 @@ def surreal_docs_insert() -> None:
     logger.info("reading file {0}".format(path_to_csv))
 
     logger.info("Connecting to SurrealDB")
-    db = Surreal(SURREAL_DB_ADDRESS)
+    db = SurrealDB(SURREAL_DB_ADDRESS)
     db.signin({"username": "root", "password": "root"})
     db.use(NS,DB)
 
@@ -145,7 +146,7 @@ life_span = {}
 @contextlib.asynccontextmanager
 async def lifespan(_: fastapi.FastAPI) -> AsyncGenerator:
     """FastAPI lifespan to create and destroy objects."""
-    async with Surreal(url=SURREAL_DB_ADDRESS) as connection:
+    async with AsyncSurrealDB(url=SURREAL_DB_ADDRESS) as connection:
         await connection.connect()
         await connection.signin(data={"username": "root", "password": "root"})
         await connection.use_namespace(NS)
