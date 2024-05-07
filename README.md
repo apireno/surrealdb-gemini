@@ -82,7 +82,7 @@ pip install -e .
 We're going for the use SurrealDB's documentation git repository to pull some articles and generate vector embeddings (https://github.com/surrealdb/docs.surrealdb.com). Ready to download it?
 
 ```bash
-get-data
+get-docs-data
 ```
 
 ### Populating SurrealDB
@@ -90,7 +90,7 @@ get-data
 Time to move that dataset into SurrealDB:
 
 ```bash
-surreal-insert
+surreal-docs-insert
 ```
 
 ### Let's Do Some RAG!
