@@ -10,8 +10,8 @@ import zipfile
 
 import fastapi
 import pandas as pd
-from surrealdb import SurrealDB
-from surrealdb import AsyncSurrealDB
+from surrealdb-beta import SurrealDB
+from surrealdb-beta import AsyncSurrealDB
 import tqdm
 import wget
 from fastapi import templating, responses, staticfiles
