@@ -16,7 +16,7 @@ dependencies = [
     "pandas",
     "wget",
     "pandas-stubs",
-    "surrealdb-beta @ git+https://github.com/surrealdb/surrealdb.py/tree/v0.3.2"
+    "surrealdb-beta @ git+https://github.com/surrealdb/surrealdb.py/tree/v0.3.2",
     "tqdm",
     "fastapi",
     "uvicorn",
