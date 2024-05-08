@@ -32,7 +32,7 @@ INSERT_SURREAL_DOC_EMBEDDING_QUERY = string.Template(
 )
 
 UPDATE_SURREAL_DOC_EMBEDDING_QUERY = """
-    UPDATE surreal_doc_embedding SET content_vector=fn::embeddings_complete("embedding-001", contents) WHERE content_vector = none;
+    UPDATE surreal_doc_embedding SET content_vector=fn::embeddings_complete("embedding-001", contents) WHERE array::len(content_vector) = 0;
     """
 
 
@@ -140,6 +140,7 @@ templates = templating.Jinja2Templates(directory="templates")
 templates.env.filters["extract_id"] = extract_id
 templates.env.filters["convert_timestamp_to_date"] = convert_timestamp_to_date
 life_span = {}
+
 
 
 @contextlib.asynccontextmanager
