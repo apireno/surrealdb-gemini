@@ -44,7 +44,7 @@ CHUNK_SIZE = 100
 NS = "surreal_gemini"
 DB = "surreal_gemini"
 SURREAL_DB_ADDRESS = "ws://0.0.0.0:8080/"
-SURREAL_DB_ADDRESS_WITH_NS_DB = "{0}/{1}/{2}".format(SURREAL_DB_ADDRESS,DB,NS)
+SURREAL_DB_ADDRESS_WITH_NS_DB = "{0}{1}/{2}".format(SURREAL_DB_ADDRESS,DB,NS)
 
 
 
