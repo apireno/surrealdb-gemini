@@ -60,7 +60,7 @@ def surreal_docs_insert() -> None:
    
     logger.info("reading file {0}".format(path_to_csv))
 
-    logger.info("Connecting to SurrealDB")
+    logger.info("Connecting to SurrealDB : {0}".format(SURREAL_DB_ADDRESS_WITH_NS_DB))
     db = surrealdb.SurrealDB(SURREAL_DB_ADDRESS_WITH_NS_DB)
     db.signin({"username": "root", "password": "root"})
     
