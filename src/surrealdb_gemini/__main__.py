@@ -44,6 +44,7 @@ CHUNK_SIZE = 100
 NS = "surreal_gemini"
 DB = "surreal_gemini"
 SURREAL_DB_ADDRESS = "ws://0.0.0.0:8080/"
+SURREAL_DB_ADDRESS_WITH_NS_DB = "{0}//{1}//{2}".format(SURREAL_DB_ADDRESS,DB,NS)
 
 
 
@@ -60,10 +61,9 @@ def surreal_docs_insert() -> None:
     logger.info("reading file {0}".format(path_to_csv))
 
     logger.info("Connecting to SurrealDB")
-    db = surrealdb.SurrealDB(SURREAL_DB_ADDRESS)
+    db = surrealdb.SurrealDB(SURREAL_DB_ADDRESS_WITH_NS_DB)
     db.signin({"username": "root", "password": "root"})
-    db.use(NS,DB)
-
+    
     logger.info("Inserting rows into SurrealDB")
     df = pd.read_csv(
                 path_to_csv,
@@ -145,11 +145,9 @@ life_span = {}
 @contextlib.asynccontextmanager
 async def lifespan(_: fastapi.FastAPI) -> AsyncGenerator:
     """FastAPI lifespan to create and destroy objects."""
-    async with surrealdb.AsyncSurrealDB(url=SURREAL_DB_ADDRESS) as connection:
+    async with surrealdb.AsyncSurrealDB(url=SURREAL_DB_ADDRESS_WITH_NS_DB) as connection:
         await connection.connect()
         await connection.signin(data={"username": "root", "password": "root"})
-        await connection.use_namespace(NS)
-        await connection.use_database(DB)
         life_span["surrealdb"] = connection
         yield
         life_span.clear()
